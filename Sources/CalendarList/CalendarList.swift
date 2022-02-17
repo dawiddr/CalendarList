@@ -57,34 +57,43 @@ public struct CalendarList<DotsView:View>: View {
     }
     #else
     public var body: some View {
-        NavigationView {
+        VStack {
+            HStack(alignment: .firstTextBaseline) {
+                let title = months[currentPage].monthTitle()
+                Text(title)
+                    .font(.headline.weight(.medium))
+                    .id(title)
+                Spacer()
+                todayButton
+                previousMonthButton
+                nextMonthButton
+            }.padding(.leading)
+            
             commonBody
-            .navigationBarTitle("\(self.months[self.currentPage].monthTitle())", displayMode: .inline)
-            .navigationBarItems(leading: leadingButtons(), trailing: trailingButtons())
+                .padding([.top, .bottom])
+                .background(Color(UIColor.secondarySystemGroupedBackground))
+                .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
         }
     }
     #endif
 
     public var commonBody: some View {
         VStack {
-            VStack {
-                CalendarMonthHeader(calendar: self.months[1].calendar, calendarDayHeight: self.calendarDayHeight)
-                                
-                HStack(alignment: .top) {
-                    PagerView(pageCount: self.months.count, currentIndex: self.$currentPage, pageChanged: self.updateMonthsAfterPagerSwipe) {
-                        ForEach(self.months, id:\.key) { month in
-                            CalendarMonthView(month: month,
-                                              calendar: self.months[1].calendar,
-                                              selectedDate: self.$selectedDate,
-                                              calendarDayHeight: self.calendarDayHeight,
-                                              dotsViewBuilder: dotsViewBuilder,
-                                              selectedDateColor: self.selectedDateColor,
-                                              todayDateColor: self.todayDateColor)
-                        }
+            CalendarMonthHeader(calendar: self.months[1].calendar, calendarDayHeight: self.calendarDayHeight)
+                            
+            HStack(alignment: .top) {
+                PagerView(pageCount: self.months.count, currentIndex: self.$currentPage, pageChanged: self.updateMonthsAfterPagerSwipe) {
+                    ForEach(self.months, id:\.key) { month in
+                        CalendarMonthView(month: month,
+                                          calendar: self.months[1].calendar,
+                                          selectedDate: self.$selectedDate,
+                                          calendarDayHeight: self.calendarDayHeight,
+                                          dotsViewBuilder: dotsViewBuilder,
+                                          selectedDateColor: self.selectedDateColor,
+                                          todayDateColor: self.todayDateColor)
                     }
                 }
-                .frame(height: CGFloat(self.months[1].weeks.count) * self.calendarDayHeight)
-            }
+            }.frame(height: CGFloat(self.months[1].weeks.count) * self.calendarDayHeight)
         }
     }
     
@@ -105,43 +114,46 @@ public struct CalendarList<DotsView:View>: View {
         self.currentPage = 1
     }
     
-    func leadingButtons() -> some View {
-        Button(action: {
+    var previousMonthButton: some View {
+        Button {
             withAnimation {
                 self.months = self.months.first!.getSurroundingMonths()
             }
-        }) {
-            #if !os(macOS)
-            Image(systemName: "lessthan").font(.body)
-            #else
-            Text("<").font(.body)
-            #endif
+        } label: {
+            Image(systemName: "chevron.backward")
+                .font(navigationButtonFont)
+                .padding([.leading, .trailing], 8)
+                .accessibilityLabel("Previous month")
         }
     }
     
-    func trailingButtons() -> some View {
-        HStack {
-            Button(action: {
-                withAnimation {
-                    self.months = CalendarMonth.getSurroundingMonths(forDate: Date(), andCalendar: Calendar.current)
-                    self.selectedDate = Date()
-                }
-            }) {
-                Text("Today").font(.body)
+    var todayButton: some View {
+        Button {
+            withAnimation {
+                self.months = CalendarMonth.getSurroundingMonths(forDate: Date(), andCalendar: Calendar.current)
+                self.selectedDate = Date()
             }
-            .padding(.trailing, 20)
-            Button(action: {
-                withAnimation {
-                    self.months = self.months.last!.getSurroundingMonths()
-                }
-            }) {
-                #if !os(macOS)
-                Image(systemName: "greaterthan").font(.body)
-                #else
-                Text(">").font(.body)
-                #endif
+        } label: {
+            Image(systemName: "smallcircle.filled.circle")
+                .font(navigationButtonFont)
+                .padding([.leading, .trailing], 8)
+        }.accessibilityLabel("Today")
+        .accessibilityHint("Go to current day")
+    }
+    
+    var nextMonthButton: some View {
+        Button {
+            withAnimation {
+                self.months = self.months.last!.getSurroundingMonths()
             }
+        } label: {
+            Image(systemName: "chevron.forward")
+                .font(navigationButtonFont)
+                .padding([.leading, .trailing], 8)
+                .accessibilityLabel("Next month")
         }
     }
+    
+    private let navigationButtonFont = Font.title2.weight(.medium)
 }
 
