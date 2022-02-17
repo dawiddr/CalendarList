@@ -13,7 +13,6 @@ struct CalendarViewDay<DotsView:View>: View {
     let calendar:Calendar
     let day:Date
     let selected:Bool
-    let width:CGFloat
     let height:CGFloat
     
     let selectedDateColor:Color
@@ -21,7 +20,6 @@ struct CalendarViewDay<DotsView:View>: View {
     let dotsView:DotsView?
     
     var body: some View {
-        
         ZStack(alignment: .top) {
             Text("\(self.dateFormatter().string(from: day))")
                 .font(.body)
@@ -32,8 +30,8 @@ struct CalendarViewDay<DotsView:View>: View {
             }
         }
         .padding(8)
-        .frame(width: self.width)
-            .background(Circle().foregroundColor(dateColor()).padding(2))
+        .frame(maxWidth: .infinity)
+        .background(Circle().foregroundColor(dateColor()).padding(2))
         .padding([.top, .bottom], 10)
         .frame(height: self.height)
     }

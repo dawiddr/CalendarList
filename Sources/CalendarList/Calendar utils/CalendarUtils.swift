@@ -19,7 +19,7 @@ public struct CalendarUtils {
     }
     
     public static func getLocalizedShortWeekdaySymbols(for calendar:Calendar) -> [CalendarWeekdaySymbol] {
-        let originalSymbols = calendar.veryShortWeekdaySymbols
+        let originalSymbols = calendar.shortWeekdaySymbols
         var localizedSymbols:[CalendarWeekdaySymbol] = []
         
         let firstWeekdayIndex = calendar.firstWeekday - 1
@@ -28,12 +28,12 @@ public struct CalendarUtils {
         
         for i in firstWeekdayIndex ..< originalSymbols.count {
             isWeekend = (i == 0 || i == 6)
-            localizedSymbols.append(CalendarWeekdaySymbol(symbol: originalSymbols[i], isWeekend: isWeekend, order: i))
+            localizedSymbols.append(CalendarWeekdaySymbol(symbol: originalSymbols[i].uppercased(), isWeekend: isWeekend, order: i))
         }
         
         for i in 0 ..< firstWeekdayIndex {
             isWeekend = (i == 0 || i == 6)
-            localizedSymbols.append(CalendarWeekdaySymbol(symbol: originalSymbols[i], isWeekend: isWeekend, order: i))
+            localizedSymbols.append(CalendarWeekdaySymbol(symbol: originalSymbols[i].uppercased(), isWeekend: isWeekend, order: i))
         }
         
         return localizedSymbols

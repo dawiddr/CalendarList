@@ -79,7 +79,8 @@ public struct CalendarList<DotsView:View>: View {
 
     public var commonBody: some View {
         VStack {
-            CalendarMonthHeader(calendar: self.months[1].calendar, calendarDayHeight: self.calendarDayHeight)
+            CalendarMonthHeader(calendar: self.months[1].calendar)
+                .padding([.leading, .trailing])
                             
             HStack(alignment: .top) {
                 PagerView(pageCount: self.months.count, currentIndex: self.$currentPage, pageChanged: self.updateMonthsAfterPagerSwipe) {
@@ -91,8 +92,9 @@ public struct CalendarList<DotsView:View>: View {
                                           dotsViewBuilder: dotsViewBuilder,
                                           selectedDateColor: self.selectedDateColor,
                                           todayDateColor: self.todayDateColor)
+                            .padding([.leading, .trailing])
                     }
-                }
+                }.offset(y: -8)
             }.frame(height: CGFloat(self.months[1].weeks.count) * self.calendarDayHeight)
         }
     }

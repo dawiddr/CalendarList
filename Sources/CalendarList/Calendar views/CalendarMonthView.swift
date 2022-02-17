@@ -28,11 +28,7 @@ struct CalendarMonthView<DotsView:View>: View {
                 ForEach(self.month.weeks, id:\.self) { week in
                     HStack(spacing: 0) {
                         ForEach(getRangeForMarginsTop(week: week), id:\.self) { num in
-                            Text("")
-                                .frame(
-                                    width: self.dayViewWidth(parentWidth: geometry.size.width),
-                                    height: self.calendarDayHeight
-                            )
+                            Text("").frame(maxWidth: .infinity, idealHeight: self.calendarDayHeight, alignment: .center)
                         }
 
                         ForEach(week, id:\.self) { day in
@@ -44,7 +40,6 @@ struct CalendarMonthView<DotsView:View>: View {
                                     date2: day,
                                     calendar: self.calendar
                                 ),
-                                width: self.dayViewWidth(parentWidth: geometry.size.width),
                                 height: self.calendarDayHeight,
                                 selectedDateColor: self.selectedDateColor,
                                 todayDateColor: self.todayDateColor,
@@ -56,14 +51,9 @@ struct CalendarMonthView<DotsView:View>: View {
                         }
                         
                         ForEach(getRangeForMarginsBottom(week: week), id:\.self) { num in
-                            Text("")
-                                .frame(
-                                    width: self.dayViewWidth(parentWidth: geometry.size.width),
-                                    height: self.calendarDayHeight
-                                )
+                            Text("").frame(maxWidth: .infinity, idealHeight: self.calendarDayHeight, alignment: .center)
                         }
                     }
-                    .padding([.leading, .trailing], 10)
                 }
             }
         }
@@ -83,9 +73,6 @@ struct CalendarMonthView<DotsView:View>: View {
             return 1..<diff+1
         }
         return 0..<0
-    }
-    func dayViewWidth(parentWidth:CGFloat) -> CGFloat {
-        return (parentWidth - 20) / 7
     }
     
     func containsFirstDayOfMonth(_ dates:[Date]) -> Bool {
