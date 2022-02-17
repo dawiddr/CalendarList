@@ -19,7 +19,7 @@ import SwiftUI
 ///   - todayDateColor: color used to highlight the current day. Defaults to the accent color with 0.3 opacity.
 ///   - viewForEvent: `@ViewBuilder` block to generate a view per every event on the selected date. All the generated views for a given day will be presented in a `List`.
 @available(iOS 13.0, OSX 10.15, tvOS 13.0, watchOS 6.0, *)
-public struct CalendarList<T:Hashable, Content:View>: View {
+public struct CalendarList<DotsView:View>: View {
     @State private var months:[CalendarMonth]
     @State private var currentPage = 1
     
@@ -28,10 +28,7 @@ public struct CalendarList<T:Hashable, Content:View>: View {
     private let calendarDayHeight:CGFloat = 60
     private let calendar:Calendar
     
-    private var events:[Date:[CalendarEvent<T>]]
-        
-    private var viewForEventBlock:(CalendarEvent<T>) -> Content
-    
+    private var dotsViewBuilder: (Date) -> DotsView?
     private var selectedDateColor:Color
     private var todayDateColor:Color
     
@@ -39,26 +36,19 @@ public struct CalendarList<T:Hashable, Content:View>: View {
     /// - Parameters:
     ///   - initialDate: the initial month to be displayed will be extracted from this date. Defaults to the current day.
     ///   - calendar: `Calendar` instance to be used thorought the `CalendarList` instance. Defaults to the current `Calendar`.
-    ///   - events: list of events to be displayed. Each event is an instance of `CalendarEvent`.
     ///   - selectedDateColor: color used to highlight the selected day. Defaults to the accent color.
     ///   - todayDateColor: color used to highlight the current day. Defaults to the accent color with 0.3 opacity.
-    ///   - viewForEvent: `@ViewBuilder` block to generate a view per every event on the selected date. All the generated views for a given day will be presented in a `List`.
     public init(initialDate:Date = Date(),
                 calendar:Calendar = Calendar.current,
-                events:[CalendarEvent<T>],
                 selectedDateColor:Color = Color.accentColor,
                 todayDateColor:Color = Color.accentColor.opacity(0.3),
-                @ViewBuilder viewForEvent: @escaping (CalendarEvent<T>) -> Content) {
+                @ViewBuilder dotsViewBuilder: @escaping (Date) -> DotsView?) {
         
         self.calendar = calendar
         _months = State(initialValue: CalendarMonth.getSurroundingMonths(forDate: initialDate, andCalendar: calendar))
-        
-        self.events = Dictionary(grouping: events, by: { $0.date })
-        
         self.selectedDateColor = selectedDateColor
         self.todayDateColor = todayDateColor
-        
-        self.viewForEventBlock = viewForEvent
+        self.dotsViewBuilder = dotsViewBuilder
     }
     
     #if os(macOS)
@@ -87,21 +77,13 @@ public struct CalendarList<T:Hashable, Content:View>: View {
                                               calendar: self.months[1].calendar,
                                               selectedDate: self.$selectedDate,
                                               calendarDayHeight: self.calendarDayHeight,
-                                              eventsForDate: self.events,
+                                              dotsViewBuilder: dotsViewBuilder,
                                               selectedDateColor: self.selectedDateColor,
                                               todayDateColor: self.todayDateColor)
                         }
                     }
                 }
                 .frame(height: CGFloat(self.months[1].weeks.count) * self.calendarDayHeight)
-            }
-            
-            Divider()
-                        
-            List {
-                ForEach(eventsForSelectedDate(), id:\.data) { event in
-                    self.viewForEventBlock(event)
-                }
             }
         }
     }
@@ -121,12 +103,6 @@ public struct CalendarList<T:Hashable, Content:View>: View {
         self.months.insert(newMonths[2], at: 2)
         
         self.currentPage = 1
-    }
-    
-    func eventsForSelectedDate() -> [CalendarEvent<T>] {
-        let actualDay = CalendarUtils.resetHourPart(of: self.selectedDate, calendar:self.calendar)
-        
-        return self.events[actualDay] ?? []
     }
     
     func leadingButtons() -> some View {

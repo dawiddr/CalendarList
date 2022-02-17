@@ -9,34 +9,31 @@
 import SwiftUI
 
 @available(iOS 13.0, OSX 10.15, tvOS 13.0, watchOS 6.0, *)
-struct CalendarViewDay: View {
+struct CalendarViewDay<DotsView:View>: View {
     let calendar:Calendar
     let day:Date
     let selected:Bool
-    let hasEvents:Bool
     let width:CGFloat
     let height:CGFloat
     
     let selectedDateColor:Color
     let todayDateColor:Color
+    let dotsView:DotsView?
     
     var body: some View {
         
-        ZStack(alignment: .bottom) {
+        ZStack(alignment: .top) {
             Text("\(self.dateFormatter().string(from: day))")
                 .font(.body)
                 .foregroundColor(self.selected ? Color.white : ( !self.calendar.isDateInWeekend(self.day) ? Color.primary : Color.secondary))
             
-            if hasEvents {
-                Circle()
-                    .frame(width: 8, height: 8)
-                    .offset(x: 0, y: 18)
-                    .foregroundColor(Color.secondary)
+            if let dotsView = dotsView {
+                dotsView.offset(x: 0, y: 32)
             }
         }
         .padding(8)
         .frame(width: self.width)
-            .background(Circle().foregroundColor(dateColor()).padding(0))
+            .background(Circle().foregroundColor(dateColor()).padding(2))
         .padding([.top, .bottom], 10)
         .frame(height: self.height)
     }

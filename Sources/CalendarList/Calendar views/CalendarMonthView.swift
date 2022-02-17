@@ -9,7 +9,7 @@
 import SwiftUI
 
 @available(iOS 13.0, OSX 10.15, tvOS 13.0, watchOS 6.0, *)
-struct CalendarMonthView<T:Hashable>: View {
+struct CalendarMonthView<DotsView:View>: View {
     let month:CalendarMonth
     let calendar:Calendar
     
@@ -17,7 +17,7 @@ struct CalendarMonthView<T:Hashable>: View {
     
     let calendarDayHeight:CGFloat
     
-    let eventsForDate:[Date:[CalendarEvent<T>]]
+    let dotsViewBuilder: (Date) -> DotsView?
     
     let selectedDateColor:Color
     let todayDateColor:Color
@@ -44,11 +44,11 @@ struct CalendarMonthView<T:Hashable>: View {
                                     date2: day,
                                     calendar: self.calendar
                                 ),
-                                hasEvents: self.dayHasEvents(day),
                                 width: self.dayViewWidth(parentWidth: geometry.size.width),
                                 height: self.calendarDayHeight,
                                 selectedDateColor: self.selectedDateColor,
-                                todayDateColor: self.todayDateColor
+                                todayDateColor: self.todayDateColor,
+                                dotsView: self.dotsViewBuilder(CalendarUtils.resetHourPart(of: day, calendar:self.calendar))
                             )
                             .onTapGesture {
                                 self.selectedDate = day
@@ -91,16 +91,6 @@ struct CalendarMonthView<T:Hashable>: View {
     func containsFirstDayOfMonth(_ dates:[Date]) -> Bool {
         return dates.contains { (date) -> Bool in
             calendar.component(.day, from: date) == 1
-        }
-    }
-    
-    func dayHasEvents(_ date:Date) -> Bool {
-        let actualDay = CalendarUtils.resetHourPart(of: date, calendar:self.calendar)
-        
-        if let events = self.eventsForDate[actualDay] {
-            return events.count > 0
-        } else {
-            return false
         }
     }
 }
