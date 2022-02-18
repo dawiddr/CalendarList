@@ -8,7 +8,7 @@
 
 import Foundation
 
-public struct CalendarMonth {
+public struct CalendarMonth: Equatable {
     public var calendar:Calendar
     public var actualDate:Date
     

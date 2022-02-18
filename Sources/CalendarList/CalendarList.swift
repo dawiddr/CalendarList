@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import SwiftUIPager
 
 /// SwiftUI view to display paginated calendar months. When a given date is selected, all events for such date are represented below
 /// according to the view-generation initializer block.
@@ -83,44 +84,43 @@ public struct CalendarList<DotsView:View>: View {
                 .padding([.leading, .trailing])
                             
             HStack(alignment: .top) {
-                PagerView(pageCount: self.months.count, currentIndex: self.$currentPage, pageChanged: self.updateMonthsAfterPagerSwipe) {
-                    ForEach(self.months, id:\.key) { month in
-                        CalendarMonthView(month: month,
-                                          calendar: self.months[1].calendar,
-                                          selectedDate: self.$selectedDate,
-                                          calendarDayHeight: self.calendarDayHeight,
-                                          dotsViewBuilder: dotsViewBuilder,
-                                          selectedDateColor: self.selectedDateColor,
-                                          todayDateColor: self.todayDateColor)
-                            .padding([.leading, .trailing])
-                    }
-                }.offset(y: -8)
+                Pager(page: .withIndex(currentPage), data: months.indices, id: \.self) {
+                    let month = months[$0]
+                    CalendarMonthView(month: month,
+                                      calendar: self.months[1].calendar,
+                                      selectedDate: self.$selectedDate,
+                                      calendarDayHeight: self.calendarDayHeight,
+                                      dotsViewBuilder: dotsViewBuilder,
+                                      selectedDateColor: self.selectedDateColor,
+                                      todayDateColor: self.todayDateColor)
+                        .padding([.leading, .trailing])
+                }.onPageChanged(updateMonths)
+                .offset(y: -8)
             }.frame(height: CGFloat(self.months[1].weeks.count) * self.calendarDayHeight)
         }
     }
     
-    func updateMonthsAfterPagerSwipe(newIndex:Int) {
-        let newMonths = self.months[self.currentPage].getSurroundingMonths()
-        
+    func updateMonths(newIndex:Int) {
+        let newMonths = months[newIndex].getSurroundingMonths()
         if newIndex == 0 {
-            self.months.remove(at: 1)
-            self.months.remove(at: 1)
-        } else { //newIndex == 2
-            self.months.remove(at: 0)
-            self.months.remove(at: 0)
+            months.remove(at: 1)
+            months.remove(at: 1)
+        } else if newIndex == 2 {
+            months.remove(at: 0)
+            months.remove(at: 0)
         }
         
-        self.months.insert(newMonths[0], at: 0)
-        self.months.insert(newMonths[2], at: 2)
-        
-        self.currentPage = 1
+        months.insert(newMonths[0], at: 0)
+        months.insert(newMonths[2], at: 2)
+        currentPage = 1
     }
     
     var previousMonthButton: some View {
         Button {
             withAnimation {
-                self.months = self.months.first!.getSurroundingMonths()
+                currentPage = 0
             }
+            updateMonths(newIndex: currentPage)
         } label: {
             Image(systemName: "chevron.backward")
                 .font(navigationButtonFont)
@@ -146,8 +146,9 @@ public struct CalendarList<DotsView:View>: View {
     var nextMonthButton: some View {
         Button {
             withAnimation {
-                self.months = self.months.last!.getSurroundingMonths()
+                currentPage = 2
             }
+            updateMonths(newIndex: currentPage)
         } label: {
             Image(systemName: "chevron.forward")
                 .font(navigationButtonFont)

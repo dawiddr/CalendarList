@@ -55,7 +55,7 @@ struct CalendarMonthView<DotsView:View>: View {
                         }
                     }
                 }
-            }
+            }.contentShape(Rectangle())
         }
     }
 
