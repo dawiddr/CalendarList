@@ -51,7 +51,8 @@ struct CalendarMonthView<DotsView: View, DetailsView: View>: View {
                             dotsView: self.dotsViewBuilder(dayStart))
                         .anchorPreference(key: BoundsPreferences<Date>.self, value: .bounds) {
                             [day: geometry[$0]]
-                        }.onTapGesture {
+                        }.opacity(isShowingSelectedDayDetails && selectedDayFrame != dayFrames[day] ? 0.4 : 1)
+                        .onTapGesture {
                             if isShowingSelectedDayDetails && selectedDayFrame == dayFrames[day] {
                                 isShowingSelectedDayDetails = false
                             } else {
