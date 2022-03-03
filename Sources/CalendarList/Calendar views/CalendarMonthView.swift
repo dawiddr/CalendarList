@@ -18,6 +18,7 @@ struct CalendarMonthView<DotsView: View, DetailsView: View>: View {
     @Binding var isShowingSelectedDayDetails: Bool
     
     let geometry:GeometryProxy
+    let isVisible: Bool
     let calendarDayHeight:CGFloat
     
     let dotsViewBuilder: (Date) -> DotsView?
@@ -71,7 +72,9 @@ struct CalendarMonthView<DotsView: View, DetailsView: View>: View {
             }
         }.contentShape(Rectangle())
         .onPreferenceChange(BoundsPreferences<Date>.self) {
-            dayFrames = $0
+            if isVisible {
+                dayFrames = $0
+            }
         }
     }
 

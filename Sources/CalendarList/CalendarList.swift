@@ -76,14 +76,15 @@ public struct CalendarList<DotsView: View, DetailsView: View>: View {
                 .padding([.leading, .trailing])
             
             GeometryReader { geometry in
-                Pager(page: .withIndex(currentPage), data: months.indices, id: \.self) {
-                    let month = months[$0]
+                Pager(page: .withIndex(currentPage), data: months.indices, id: \.self) { index in
+                    let month = months[index]
                     CalendarMonthView(month: month,
                                       calendar: self.months[1].calendar,
                                       selectedDate: self.$selectedDate,
                                       selectedDayFrame: self.$selectedDayFrame,
                                       isShowingSelectedDayDetails: self.$isShowingSelectedDayDetails,
                                       geometry: geometry,
+                                      isVisible: index == 1,
                                       calendarDayHeight: self.calendarDayHeight,
                                       dotsViewBuilder: dotsViewBuilder,
                                       detailsViewBuilder: detailsViewBuilder,
