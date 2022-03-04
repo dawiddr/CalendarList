@@ -91,7 +91,8 @@ public struct CalendarList<DotsView: View, DetailsView: View>: View {
                                       selectedDateColor: self.selectedDateColor,
                                       todayDateColor: self.todayDateColor)
                         .padding([.leading, .trailing])
-                }.onPageChanged(updateMonths)
+                }.pagingPriority(.high)
+                .onPageChanged(updateMonths)
                 .onDraggingChanged { _ in
                     if isShowingSelectedDayDetails {
                         isShowingSelectedDayDetails = false
