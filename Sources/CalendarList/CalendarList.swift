@@ -20,7 +20,7 @@ import SwiftUIPager
 ///   - todayDateColor: color used to highlight the current day. Defaults to the accent color with 0.3 opacity.
 ///   - viewForEvent: `@ViewBuilder` block to generate a view per every event on the selected date. All the generated views for a given day will be presented in a `List`.
 @available(iOS 13.0, OSX 10.15, tvOS 13.0, watchOS 6.0, *)
-public struct CalendarList<DotsView: View, DetailsView: View>: View {
+public struct CalendarList<DotsView: View & Equatable, DetailsView: View & Equatable>: View {
     /// Create a new paginated calendar SwiftUI view.
     /// - Parameters:
     ///   - initialDate: the initial month to be displayed will be extracted from this date. Defaults to the current day.
@@ -87,7 +87,6 @@ public struct CalendarList<DotsView: View, DetailsView: View>: View {
                                       isVisible: index == 1,
                                       calendarDayHeight: self.calendarDayHeight,
                                       dotsViewBuilder: dotsViewBuilder,
-                                      detailsViewBuilder: detailsViewBuilder,
                                       selectedDateColor: self.selectedDateColor,
                                       todayDateColor: self.todayDateColor)
                         .padding([.leading, .trailing])
@@ -112,6 +111,7 @@ public struct CalendarList<DotsView: View, DetailsView: View>: View {
             let detailsHeight = selectedDayDetailsFrame.size.height
 
             self.detailsViewBuilder(selectedDate)
+                .equatable()
                 .anchorPreference(key: BoundsPreference.self, value: .bounds) { geometry[$0] }
                 .onPreferenceChange(BoundsPreference.self) {
                     selectedDayDetailsFrame = $0

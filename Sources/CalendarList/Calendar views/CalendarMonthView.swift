@@ -9,7 +9,7 @@
 import SwiftUI
 
 @available(iOS 13.0, OSX 10.15, tvOS 13.0, watchOS 6.0, *)
-struct CalendarMonthView<DotsView: View, DetailsView: View>: View {
+struct CalendarMonthView<DotsView: View & Equatable>: View {
     let month:CalendarMonth
     let calendar:Calendar
     
@@ -22,7 +22,6 @@ struct CalendarMonthView<DotsView: View, DetailsView: View>: View {
     let calendarDayHeight:CGFloat
     
     let dotsViewBuilder: (Date) -> DotsView?
-    let detailsViewBuilder: (Date) -> DetailsView?
     
     let selectedDateColor:Color
     let todayDateColor:Color
@@ -50,6 +49,7 @@ struct CalendarMonthView<DotsView: View, DetailsView: View>: View {
                             selectedDateColor: self.selectedDateColor,
                             todayDateColor: self.todayDateColor,
                             dotsView: self.dotsViewBuilder(dayStart))
+                        .equatable()
                         .anchorPreference(key: BoundsPreferences<Date>.self, value: .bounds) {
                             [day: geometry[$0]]
                         }.opacity(isShowingSelectedDayDetails && selectedDayFrame != dayFrames[day] ? 0.4 : 1)

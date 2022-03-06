@@ -9,7 +9,7 @@
 import SwiftUI
 
 @available(iOS 13.0, OSX 10.15, tvOS 13.0, watchOS 6.0, *)
-struct CalendarViewDay<DotsView:View>: View {
+struct CalendarViewDay<DotsView: View & Equatable>: View, Equatable {
     let calendar:Calendar
     let day:Date
     let selected:Bool
@@ -26,7 +26,9 @@ struct CalendarViewDay<DotsView:View>: View {
                 .foregroundColor(self.selected ? Color.white : ( !self.calendar.isDateInWeekend(self.day) ? Color.primary : Color.secondary))
             
             if let dotsView = dotsView {
-                dotsView.offset(x: 0, y: 32)
+                dotsView
+                    .equatable()
+                    .offset(x: 0, y: 32)
             }
         }
         .padding(8)
