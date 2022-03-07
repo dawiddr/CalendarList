@@ -95,7 +95,7 @@ public struct CalendarList<DotsView: View & Equatable, DetailsView: View & Equat
     @State
     public var selectedDate:Date = Date()
     
-    private func detailsView(date: Date, geometry: GeometryProxy) -> CalendarOverlayView {
+    private func detailsView(date: Date, geometry: GeometryProxy) -> CalendarOverlayView? {
         if isShowingSelectedDayDetails, let dayFrame = selectedDayFrame {
             let detailsWidth = selectedDayDetailsFrame.size.width
             let detailsHeight = selectedDayDetailsFrame.size.height
@@ -110,7 +110,7 @@ public struct CalendarList<DotsView: View & Equatable, DetailsView: View & Equat
                 }.position(x: min(max(detailsWidth / 2 - 8, dayFrame.minX + dayFrame.width / 2), geometry.size.width - detailsWidth / 2 + 8),
                            y: dayFrame.minY - detailsHeight / 2 + 6)))
         } else {
-            return CalendarOverlayView(view: AnyView(EmptyView()))
+            return nil
         }
     }
     
@@ -203,9 +203,9 @@ public struct CalendarOverlayView: Equatable {
 }
 
 public struct CalendarOverlayPreference: PreferenceKey {
-    public static var defaultValue = CalendarOverlayView(view: AnyView(EmptyView()))
+    public static var defaultValue: CalendarOverlayView?
     
-    public static func reduce(value: inout CalendarOverlayView, nextValue: () -> CalendarOverlayView) {
+    public static func reduce(value: inout CalendarOverlayView?, nextValue: () -> CalendarOverlayView?) {
         value = nextValue()
     }
 }
