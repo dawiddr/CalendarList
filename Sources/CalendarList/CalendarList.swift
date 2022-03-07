@@ -108,7 +108,8 @@ public struct CalendarList<DotsView: View & Equatable, DetailsView: View & Equat
                 }.onTapGesture {
                     isShowingSelectedDayDetails = false
                 }.position(x: min(max(detailsWidth / 2 - 8, dayFrame.minX + dayFrame.width / 2), geometry.size.width - detailsWidth / 2 + 8),
-                           y: dayFrame.minY - detailsHeight / 2 + 6)))
+                           y: dayFrame.minY - detailsHeight / 2 + 6)
+                .opacity(selectedDayDetailsFrame == .zero ? 0 : 1))) // The frame is initially zero, which causes the position to be incorrect.
         } else {
             return nil
         }
