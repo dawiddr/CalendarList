@@ -20,7 +20,7 @@ import SwiftUIPager
 ///   - todayDateColor: color used to highlight the current day. Defaults to the accent color with 0.3 opacity.
 ///   - viewForEvent: `@ViewBuilder` block to generate a view per every event on the selected date. All the generated views for a given day will be presented in a `List`.
 @available(iOS 13.0, OSX 10.15, tvOS 13.0, watchOS 6.0, *)
-public struct CalendarList<DotsView: View & Equatable, DetailsView: View & Equatable>: View {
+public struct CalendarList<DotsView: View & Equatable, DetailsView: View & Equatable, FooterView: View>: View {
     /// Create a new paginated calendar SwiftUI view.
     /// - Parameters:
     ///   - initialDate: the initial month to be displayed will be extracted from this date. Defaults to the current day.
@@ -29,19 +29,26 @@ public struct CalendarList<DotsView: View & Equatable, DetailsView: View & Equat
     ///   - todayDateColor: color used to highlight the current day. Defaults to the accent color with 0.3 opacity.
     public init(initialDate:Date = Date(),
                 calendar:Calendar = Calendar.current,
+                selectedDays: Binding<[Date]>,
+                isSelectingMultipleDays: Binding<Bool>,
+                isShowingSelectedDayDetails: Binding<Bool>,
                 selectedDateColor:Color = Color.accentColor,
                 todayDateColor:Color = Color.accentColor.opacity(0.3),
+                @ViewBuilder footerView: @escaping () -> FooterView,
                 @ViewBuilder dotsViewBuilder: @escaping (Date) -> DotsView?,
-                @ViewBuilder detailsViewBuilder: @escaping (Date) -> DetailsView?,
-                isShowingSelectedDayDetails: Binding<Bool>) {
+                @ViewBuilder detailsViewBuilder: @escaping (Date) -> DetailsView?) {
         
         self.calendar = calendar
-        _months = State(initialValue: CalendarMonth.getSurroundingMonths(forDate: initialDate, andCalendar: calendar))
+        self._selectedDays = selectedDays
+        self._isSelectingMultipleDays = isSelectingMultipleDays
+        self._isShowingSelectedDayDetails = isShowingSelectedDayDetails
         self.selectedDateColor = selectedDateColor
         self.todayDateColor = todayDateColor
+        self.footerView = footerView
         self.dotsViewBuilder = dotsViewBuilder
         self.detailsViewBuilder = detailsViewBuilder
-        self._isShowingSelectedDayDetails = isShowingSelectedDayDetails
+        
+        _months = State(initialValue: CalendarMonth.getSurroundingMonths(forDate: initialDate, andCalendar: calendar))
     }
     
     public var body: some View {
@@ -66,9 +73,10 @@ public struct CalendarList<DotsView: View & Equatable, DetailsView: View & Equat
                         let month = months[index]
                         CalendarMonthView(month: month,
                                           calendar: self.months[1].calendar,
-                                          selectedDate: self.$selectedDate,
-                                          selectedDayFrame: self.$selectedDayFrame,
+                                          selectedDays: self.$selectedDays,
+                                          selectedDayFrames: self.$selectedDayFrames,
                                           isShowingSelectedDayDetails: self.$isShowingSelectedDayDetails,
+                                          isSelectingMultipleDays: self.isSelectingMultipleDays,
                                           geometry: geometry,
                                           isVisible: index == 1,
                                           calendarDayHeight: self.calendarDayHeight,
@@ -83,24 +91,24 @@ public struct CalendarList<DotsView: View & Equatable, DetailsView: View & Equat
                             isShowingSelectedDayDetails = false
                         }
                     }.offset(y: -8)
-                    .preference(key: CalendarOverlayPreference.self, value: detailsView(date: selectedDate, geometry: geometry))
+                    .preference(key: CalendarOverlayPreference.self, value: detailsView(geometry: geometry))
                 }.frame(height: CGFloat(self.months[1].weeks.count) * self.calendarDayHeight)
                 .padding([.top, .bottom])
                 .background(Color(UIColor.secondarySystemGroupedBackground)
                                 .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous)))
+                footerView()
+                    .padding([.leading, .trailing])
+                    .padding(.top, 8)
             }
         }
     }
     
-    @State
-    public var selectedDate:Date = Date()
-    
-    private func detailsView(date: Date, geometry: GeometryProxy) -> CalendarOverlayView? {
-        if isShowingSelectedDayDetails, let dayFrame = selectedDayFrame {
+    private func detailsView(geometry: GeometryProxy) -> CalendarOverlayView? {
+        if isShowingSelectedDayDetails, let selectedDay = selectedDays.first, let dayFrame = selectedDayFrames.first {
             let detailsWidth = selectedDayDetailsFrame.size.width
             let detailsHeight = selectedDayDetailsFrame.size.height
 
-            return CalendarOverlayView(view: AnyView(self.detailsViewBuilder(selectedDate)
+            return CalendarOverlayView(view: AnyView(self.detailsViewBuilder(selectedDay)
                 .equatable()
                 .anchorPreference(key: BoundsPreference.self, value: .bounds) { geometry[$0] }
                 .onPreferenceChange(BoundsPreference.self) {
@@ -149,7 +157,7 @@ public struct CalendarList<DotsView: View & Equatable, DetailsView: View & Equat
         Button {
             withAnimation {
                 months = CalendarMonth.getSurroundingMonths(forDate: Date(), andCalendar: Calendar.current)
-                selectedDate = Date()
+                selectedDays = [Date()]
                 isShowingSelectedDayDetails = false
             }
         } label: {
@@ -180,13 +188,17 @@ public struct CalendarList<DotsView: View & Equatable, DetailsView: View & Equat
     @State private var months:[CalendarMonth]
     @State private var currentPage = 1
     
-    @State private var selectedDayFrame: CGRect?
+    @State private var selectedDayFrames: [CGRect] = []
     @State private var selectedDayDetailsFrame: CGRect = .zero
     @Binding private var isShowingSelectedDayDetails: Bool
+    @Binding private var selectedDays: [Date]
+    @Binding private var isSelectingMultipleDays: Bool
+
     
     private let calendarDayHeight:CGFloat = 60
     private let calendar:Calendar
     
+    private var footerView: () -> FooterView
     private var dotsViewBuilder: (Date) -> DotsView?
     private var detailsViewBuilder: (Date) -> DetailsView?
     private var selectedDateColor:Color

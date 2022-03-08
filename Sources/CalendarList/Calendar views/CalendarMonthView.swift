@@ -13,9 +13,10 @@ struct CalendarMonthView<DotsView: View & Equatable>: View {
     let month:CalendarMonth
     let calendar:Calendar
     
-    @Binding var selectedDate:Date
-    @Binding var selectedDayFrame:CGRect?
+    @Binding var selectedDays:[Date]
+    @Binding var selectedDayFrames:[CGRect]
     @Binding var isShowingSelectedDayDetails: Bool
+    let isSelectingMultipleDays: Bool
     
     let geometry:GeometryProxy
     let isVisible: Bool
@@ -36,11 +37,7 @@ struct CalendarMonthView<DotsView: View & Equatable>: View {
 
                     ForEach(week, id:\.self) { day in
                         let dayStart = CalendarUtils.resetHourPart(of: day, calendar:self.calendar)
-                        let isSelected = CalendarUtils.isSameDay(
-                            date1: self.selectedDate,
-                            date2: day,
-                            calendar: self.calendar
-                        )
+                        let isSelected = selectedDays.contains(day)
                         CalendarViewDay(
                             calendar: self.calendar,
                             day: day,
@@ -52,16 +49,30 @@ struct CalendarMonthView<DotsView: View & Equatable>: View {
                         .equatable()
                         .anchorPreference(key: BoundsPreferences<Date>.self, value: .bounds) {
                             [day: geometry[$0]]
-                        }.opacity(isShowingSelectedDayDetails && selectedDayFrame != dayFrames[day] ? 0.4 : 1)
+                        }.opacity(isShowingSelectedDayDetails && !selectedDays.contains(day) ? 0.4 : 1)
                         .onTapGesture {
-                            if isShowingSelectedDayDetails && selectedDayFrame == dayFrames[day] {
-                                isShowingSelectedDayDetails = false
-                            } else {
-                                isShowingSelectedDayDetails = true
+                            guard let dayFrame = dayFrames[day] else {
+                                return
                             }
                             
-                            selectedDate = day
-                            selectedDayFrame = dayFrames[day]
+                            if isSelectingMultipleDays {
+                                if selectedDays.contains(day) {
+                                    selectedDays.removeAll { $0 == day }
+                                    selectedDayFrames.removeAll { $0 == dayFrame }
+                                } else {
+                                    selectedDays.append(day)
+                                    selectedDayFrames.append(dayFrame)
+                                }
+                            } else {
+                                if isShowingSelectedDayDetails, selectedDays.contains(day) {
+                                    selectedDays = []
+                                    isShowingSelectedDayDetails = false
+                                } else {
+                                    selectedDays = [day]
+                                    selectedDayFrames = [dayFrame]
+                                    isShowingSelectedDayDetails = true
+                                }
+                            }
                         }
                     }
                     
