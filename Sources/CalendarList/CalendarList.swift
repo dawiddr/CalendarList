@@ -79,11 +79,11 @@ public struct CalendarList<DotsView: View & Equatable, DetailsView: View & Equat
                                           isSelectingMultipleDays: self.isSelectingMultipleDays,
                                           geometry: geometry,
                                           isVisible: index == 1,
-                                          calendarDayHeight: self.calendarDayHeight,
                                           dotsViewBuilder: dotsViewBuilder,
                                           selectedDateColor: self.selectedDateColor,
                                           todayDateColor: self.todayDateColor)
                             .padding([.leading, .trailing])
+                            .padding(.top, 4)
                     }.pagingPriority(.high)
                     .onPageChanged(updateMonths)
                     .onDraggingChanged { _ in
@@ -93,7 +93,7 @@ public struct CalendarList<DotsView: View & Equatable, DetailsView: View & Equat
                     }.offset(y: -8)
                     .preference(key: CalendarOverlayPreference.self, value: detailsView(geometry: geometry))
                 }.frame(height: CGFloat(self.months[1].weeks.count) * self.calendarDayHeight)
-                .padding([.top, .bottom])
+                .padding(.top)
                 .background(Color(UIColor.secondarySystemGroupedBackground)
                                 .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous)))
                 footerView()
@@ -116,7 +116,7 @@ public struct CalendarList<DotsView: View & Equatable, DetailsView: View & Equat
                 }.onTapGesture {
                     isShowingSelectedDayDetails = false
                 }.position(x: min(max(detailsWidth / 2 - 8, dayFrame.minX + dayFrame.width / 2), geometry.size.width - detailsWidth / 2 + 8),
-                           y: dayFrame.minY - detailsHeight / 2 + 6)
+                           y: dayFrame.minY - detailsHeight / 2 - 6)
                 .opacity(selectedDayDetailsFrame == .zero ? 0 : 1))) // The frame is initially zero, which causes the position to be incorrect.
         } else {
             return nil
@@ -194,8 +194,8 @@ public struct CalendarList<DotsView: View & Equatable, DetailsView: View & Equat
     @Binding private var selectedDays: [Date]
     @Binding private var isSelectingMultipleDays: Bool
 
-    
-    private let calendarDayHeight:CGFloat = 60
+    @ScaledMetric(relativeTo: .body) private var calendarDayHeight: CGFloat = 60
+
     private let calendar:Calendar
     
     private var footerView: () -> FooterView

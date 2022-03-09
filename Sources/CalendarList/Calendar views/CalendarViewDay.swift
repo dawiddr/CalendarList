@@ -13,29 +13,35 @@ struct CalendarViewDay<DotsView: View & Equatable>: View, Equatable {
     let calendar:Calendar
     let day:Date
     let selected:Bool
-    let height:CGFloat
     
     let selectedDateColor:Color
     let todayDateColor:Color
     let dotsView:DotsView?
     
     var body: some View {
-        ZStack(alignment: .top) {
-            Text("\(self.dateFormatter().string(from: day))")
-                .font(.body)
-                .foregroundColor(self.selected ? Color.white : ( !self.calendar.isDateInWeekend(self.day) ? Color.primary : Color.secondary))
-            
-            if let dotsView = dotsView {
-                dotsView
-                    .equatable()
-                    .offset(x: 0, y: 32)
+        VStack(spacing: 0) {
+            ZStack {
+                Text("00")
+                    .font(.body)
+                    .padding(6)
+                    .hidden()
+                    .background(Circle().foregroundColor(dateColor()))
+                
+                Text("\(self.dateFormatter().string(from: day))")
+                    .font(.body)
+                    .foregroundColor(self.selected ? Color.white : ( !self.calendar.isDateInWeekend(self.day) ? Color.primary : Color.secondary))
             }
-        }
-        .padding(8)
-        .frame(maxWidth: .infinity)
-        .background(Circle().foregroundColor(dateColor()).padding(2))
-        .padding([.top, .bottom], 10)
-        .frame(height: self.height)
+            
+            Group {
+                if let dotsView = dotsView {
+                    dotsView.equatable()
+                } else {
+                    Spacer()
+                }
+            }.frame(maxHeight: .infinity, alignment: .top)
+            .padding(2)
+            .padding(.top, 4)
+        }.frame(maxWidth: .infinity, maxHeight: .infinity)
     }
     
     func dateColor() -> Color {

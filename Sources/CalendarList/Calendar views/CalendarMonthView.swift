@@ -20,7 +20,6 @@ struct CalendarMonthView<DotsView: View & Equatable>: View {
     
     let geometry:GeometryProxy
     let isVisible: Bool
-    let calendarDayHeight:CGFloat
     
     let dotsViewBuilder: (Date) -> DotsView?
     
@@ -32,7 +31,9 @@ struct CalendarMonthView<DotsView: View & Equatable>: View {
             ForEach(self.month.weeks, id:\.self) { week in
                 HStack(spacing: 0) {
                     ForEach(getRangeForMarginsTop(week: week), id:\.self) { num in
-                        Text("").frame(maxWidth: .infinity, idealHeight: self.calendarDayHeight, alignment: .center)
+                        Text("")
+                            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
+                            .accessibilityHidden(true)
                     }
 
                     ForEach(week, id:\.self) { day in
@@ -42,7 +43,6 @@ struct CalendarMonthView<DotsView: View & Equatable>: View {
                             calendar: self.calendar,
                             day: day,
                             selected: isSelected,
-                            height: self.calendarDayHeight,
                             selectedDateColor: self.selectedDateColor,
                             todayDateColor: self.todayDateColor,
                             dotsView: self.dotsViewBuilder(dayStart))
@@ -77,7 +77,9 @@ struct CalendarMonthView<DotsView: View & Equatable>: View {
                     }
                     
                     ForEach(getRangeForMarginsBottom(week: week), id:\.self) { num in
-                        Text("").frame(maxWidth: .infinity, idealHeight: self.calendarDayHeight, alignment: .center)
+                        Text("")
+                            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
+                            .accessibilityHidden(true)
                     }
                 }
             }
