@@ -86,9 +86,7 @@ struct CalendarMonthView<DotsView: View & Equatable>: View {
         }.contentShape(Rectangle())
         .onPreferenceChange(BoundsPreferences<Date>.self) { newValue in
             if isVisible {
-                DispatchQueue.main.async {
-                    dayFrames = newValue
-                }
+                dayFrames = newValue
             }
         }
     }
