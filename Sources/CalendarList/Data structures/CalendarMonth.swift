@@ -12,21 +12,12 @@ public struct CalendarMonth: Equatable {
     public var calendar:Calendar
     public var actualDate:Date
     
-    public var year:Int
-    public var month:Int
-    
-    public var key:String {
-        "\(year)-\(month)"
-    }
-    
     public var weeks:[[Date]]
     
     public init(calendar:Calendar, actualDate:Date, weeks:[[Date]]) {
         self.calendar = calendar
         self.actualDate = actualDate
         self.weeks = weeks
-        self.year = calendar.component(.year, from: actualDate)
-        self.month = calendar.component(.month, from: actualDate)
     }
     
     public func nextMonth() -> CalendarMonth {
@@ -47,14 +38,9 @@ public struct CalendarMonth: Equatable {
         ]
     }
     
-    public func monthName() -> String {
-        let name = calendar.monthSymbols[month - 1]
-        
-        return name.prefix(1).uppercased() + name.dropFirst()
-    }
-    
     public func monthTitle() -> String {
-        return "\(monthName()) \(year)"
+        let title = titleFormatter.string(from: actualDate)
+        return title.prefix(1).uppercased() + title.dropFirst()
     }
     
     public static func getSurroundingMonths(forDate date:Date, andCalendar calendar:Calendar) -> [CalendarMonth] {
@@ -65,4 +51,10 @@ public struct CalendarMonth: Equatable {
             calendarMonth.nextMonth()
         ]
     }
+    
+    private let titleFormatter: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.dateFormat = DateFormatter.dateFormat(fromTemplate: "MMMM yyyy", options: 0, locale: Locale.current)
+        return formatter
+    }()
 }
