@@ -37,7 +37,6 @@ struct CalendarMonthView<DotsView: View & Equatable>: View {
                     }
 
                     ForEach(week, id:\.self) { day in
-                        let dayStart = CalendarUtils.resetHourPart(of: day, calendar:self.calendar)
                         let isSelected = selectedDays.contains(day)
                         CalendarViewDay(
                             calendar: self.calendar,
@@ -45,7 +44,7 @@ struct CalendarMonthView<DotsView: View & Equatable>: View {
                             selected: isSelected,
                             selectedDateColor: self.selectedDateColor,
                             todayDateColor: self.todayDateColor,
-                            dotsView: self.dotsViewBuilder(dayStart))
+                            dotsView: self.dotsViewBuilder(day))
                         .equatable()
                         .anchorPreference(key: BoundsPreferences<Date>.self, value: .bounds) {
                             [day: geometry[$0]]
