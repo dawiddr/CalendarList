@@ -41,7 +41,6 @@ struct CalendarViewDay<DotsView: View & Equatable>: View, Equatable {
                 }
             }.frame(maxHeight: .infinity, alignment: .top)
             .padding(2)
-            .padding(.top, 4)
         }.frame(maxWidth: .infinity, maxHeight: .infinity)
     }
     

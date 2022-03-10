@@ -196,7 +196,7 @@ public struct CalendarList<DotsView: View & Equatable, DetailsView: View & Equat
     @Binding private var selectedDays: [Date]
     @Binding private var isSelectingMultipleDays: Bool
 
-    @ScaledMetric(relativeTo: .body) private var calendarDayHeight: CGFloat = 60
+    @ScaledMetric(relativeTo: .body) private var calendarDayHeight: CGFloat = 70
 
     private let calendar:Calendar
     
