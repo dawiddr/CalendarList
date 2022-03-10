@@ -21,14 +21,15 @@ struct CalendarViewDay<DotsView: View & Equatable>: View, Equatable {
     var body: some View {
         VStack(spacing: 0) {
             ZStack {
+                let color = dateColor()
                 Text("00")
                     .font(.body)
                     .padding(6)
                     .hidden()
-                    .background(Circle().foregroundColor(dateColor()))
+                    .background(Circle().foregroundColor(color))
                 
                 Text("\(self.dateFormatter().string(from: day))")
-                    .font(.body)
+                    .font(.body.weight(color == selectedDateColor ? .medium : .regular))
                     .foregroundColor(self.selected ? Color.white : ( !self.calendar.isDateInWeekend(self.day) ? Color.primary : Color.secondary))
             }
             
