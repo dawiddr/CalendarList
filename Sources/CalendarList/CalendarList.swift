@@ -52,74 +52,72 @@ public struct CalendarList<DotsView: View & Equatable, DetailsView: View & Equat
     }
     
     public var body: some View {
-        GeometryReader { geometry in
-            if geometry.frame(in: .local) != .zero {
-                VStack {
-                    HStack(alignment: .firstTextBaseline) {
-                        let title = months[currentPage].monthTitle()
-                        Text(title)
-                            .font(.headline.weight(.medium))
-                            .id(title)
-                        Spacer()
-                        todayButton
-                        previousMonthButton
-                        nextMonthButton
-                    }.padding(.leading)
-                
-                    VStack {
-                        CalendarMonthHeader(calendar: self.months[1].calendar)
-                            .padding([.leading, .trailing])
-                    
-                        Pager(page: .withIndex(currentPage), data: months.indices, id: \.self) { index in
-                            let month = months[index]
-                            CalendarMonthView(month: month,
-                                              calendar: self.months[1].calendar,
-                                              selectedDays: self.$selectedDays,
-                                              selectedDayFrames: self.$selectedDayFrames,
-                                              isShowingSelectedDayDetails: self.$isShowingSelectedDayDetails,
-                                              isSelectingMultipleDays: self.isSelectingMultipleDays,
-                                              geometry: geometry,
-                                              isVisible: index == 1,
-                                              dotsViewBuilder: dotsViewBuilder,
-                                              selectedDateColor: self.selectedDateColor,
-                                              todayDateColor: self.todayDateColor)
-                                .padding([.leading, .trailing])
-                                .padding(.top, 4)
-                        }.pagingPriority(.high)
-                        .onPageChanged(updateMonths)
-                        .onDraggingChanged { _ in
-                            if isShowingSelectedDayDetails {
-                                isShowingSelectedDayDetails = false
-                            }
-                        }.offset(y: -8)
-                        .preference(key: CalendarOverlayPreference.self, value: detailsView(geometry: geometry))
-                    }.frame(height: CGFloat(self.months[1].weeks.count) * self.calendarDayHeight)
-                    .padding(.top)
-                    .background(Color(UIColor.secondarySystemGroupedBackground)
-                                    .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous)))
-                    footerView()
+        VStack {
+            HStack(alignment: .firstTextBaseline) {
+                let title = months[currentPage].monthTitle()
+                Text(title)
+                    .font(.headline.weight(.medium))
+                    .id(title)
+                Spacer()
+                todayButton
+                previousMonthButton
+                nextMonthButton
+            }.padding(.leading)
+        
+            VStack {
+                CalendarMonthHeader(calendar: self.months[1].calendar)
+                    .padding([.leading, .trailing])
+            
+                Pager(page: .withIndex(currentPage), data: months.indices, id: \.self) { index in
+                    let month = months[index]
+                    CalendarMonthView(month: month,
+                                      calendar: self.months[1].calendar,
+                                      selectedDays: self.$selectedDays,
+                                      selectedDayFrames: self.$selectedDayFrames,
+                                      isShowingSelectedDayDetails: self.$isShowingSelectedDayDetails,
+                                      isSelectingMultipleDays: self.isSelectingMultipleDays,
+                                      isVisible: index == 1,
+                                      dotsViewBuilder: dotsViewBuilder,
+                                      selectedDateColor: self.selectedDateColor,
+                                      todayDateColor: self.todayDateColor)
                         .padding([.leading, .trailing])
-                        .padding(.top, 8)
-                }
-            }
+                        .padding(.top, 4)
+                }.pagingPriority(.high)
+                .onPageChanged(updateMonths)
+                .onDraggingChanged { _ in
+                    if isShowingSelectedDayDetails {
+                        isShowingSelectedDayDetails = false
+                    }
+                }.frame(height: CGFloat(months[1].weeks.count) * self.calendarDayHeight)
+                .offset(y: -8)
+                .preference(key: CalendarOverlayPreference.self, value: detailsView())
+            }.padding(.top)
+            .background(Color(UIColor.secondarySystemGroupedBackground)
+                            .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous)))
+            footerView()
+                .padding([.leading, .trailing])
+                .padding(.top, 8)
         }
     }
     
-    private func detailsView(geometry: GeometryProxy) -> CalendarOverlayView? {
+    private func detailsView() -> CalendarOverlayView? {
         if isShowingSelectedDayDetails, let selectedDay = selectedDays.first, let dayFrame = selectedDayFrames.first {
             let detailsWidth = selectedDayDetailsFrame.size.width
             let detailsHeight = selectedDayDetailsFrame.size.height
 
-            return CalendarOverlayView(view: AnyView(self.detailsViewBuilder(selectedDay)
-                .equatable()
-                .anchorPreference(key: BoundsPreference.self, value: .bounds) { geometry[$0] }
-                .onPreferenceChange(BoundsPreference.self) {
-                    selectedDayDetailsFrame = $0
-                }.onTapGesture {
-                    isShowingSelectedDayDetails = false
-                }.position(x: min(max(detailsWidth / 2 - 8, dayFrame.minX + dayFrame.width / 2), geometry.size.width - detailsWidth / 2 + 8),
-                           y: dayFrame.minY - detailsHeight / 2 - 6)
-                .opacity(selectedDayDetailsFrame == .zero ? 0 : 1))) // The frame is initially zero, which causes the position to be incorrect.
+            return CalendarOverlayView(view: AnyView(GeometryReader { geometry in
+                let dayFrame = geometry[dayFrame]
+                self.detailsViewBuilder(selectedDay)
+                    .equatable()
+                    .anchorPreference(key: BoundsPreference.self, value: .bounds) { geometry[$0] }
+                    .onPreferenceChange(BoundsPreference.self) {
+                        selectedDayDetailsFrame = $0
+                    }.onTapGesture {
+                        isShowingSelectedDayDetails = false
+                    }.position(x: min(max(detailsWidth / 2 + 8, dayFrame.minX + dayFrame.width / 2), geometry.size.width - detailsWidth / 2 - 8),
+                               y: dayFrame.minY - detailsHeight / 2 - 6)
+                    .opacity(selectedDayDetailsFrame == .zero ? 0 : 1) // The frame is initially zero, which causes the position to be incorrect.
+            }))
         } else {
             return nil
         }
@@ -190,7 +188,7 @@ public struct CalendarList<DotsView: View & Equatable, DetailsView: View & Equat
     @State private var months:[CalendarMonth]
     @State private var currentPage = 1
     
-    @State private var selectedDayFrames: [CGRect] = []
+    @State private var selectedDayFrames: [Anchor<CGRect>] = []
     @State private var selectedDayDetailsFrame: CGRect = .zero
     @Binding private var isShowingSelectedDayDetails: Bool
     @Binding private var selectedDays: [Date]

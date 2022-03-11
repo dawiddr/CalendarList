@@ -14,15 +14,11 @@ struct CalendarMonthView<DotsView: View & Equatable>: View {
     let calendar:Calendar
     
     @Binding var selectedDays:[Date]
-    @Binding var selectedDayFrames:[CGRect]
+    @Binding var selectedDayFrames:[Anchor<CGRect>]
     @Binding var isShowingSelectedDayDetails: Bool
     let isSelectingMultipleDays: Bool
-    
-    let geometry:GeometryProxy
     let isVisible: Bool
-    
     let dotsViewBuilder: (Date) -> DotsView?
-    
     let selectedDateColor:Color
     let todayDateColor:Color
     
@@ -47,7 +43,7 @@ struct CalendarMonthView<DotsView: View & Equatable>: View {
                             dotsView: self.dotsViewBuilder(day))
                         .equatable()
                         .anchorPreference(key: BoundsPreferences<Date>.self, value: .bounds) {
-                            [day: geometry[$0]]
+                            [day: $0]
                         }.opacity(isShowingSelectedDayDetails && !selectedDays.contains(day) ? 0.4 : 1)
                         .onTapGesture {
                             guard let dayFrame = dayFrames[day] else {
@@ -113,13 +109,13 @@ struct CalendarMonthView<DotsView: View & Equatable>: View {
     }
     
     @State
-    private var dayFrames: [Date: CGRect] = [:]
+    private var dayFrames: [Date: Anchor<CGRect>] = [:]
 }
 
 private struct BoundsPreferences<Item: Hashable>: PreferenceKey {
-    static var defaultValue: [Item: CGRect] { [:] }
+    static var defaultValue: [Item: Anchor<CGRect>] { [:] }
 
-    static func reduce(value: inout [Item: CGRect], nextValue: () -> [Item: CGRect]) {
+    static func reduce(value: inout [Item: Anchor<CGRect>], nextValue: () -> [Item: Anchor<CGRect>]) {
         value.merge(nextValue()) { $1 }
     }
 }
