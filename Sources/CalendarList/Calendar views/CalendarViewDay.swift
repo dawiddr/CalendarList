@@ -27,10 +27,12 @@ struct CalendarViewDay<DotsView: View & Equatable>: View, Equatable {
                     .padding(6)
                     .hidden()
                     .background(Circle().foregroundColor(color))
+                    .accessibilityHidden(true)
                 
-                Text("\(self.dateFormatter().string(from: day))")
+                Text("\(self.dayFormatter.string(from: day))")
                     .font(.body.weight(color == selectedDateColor ? .medium : .regular))
                     .foregroundColor(self.selected ? Color.white : ( !self.calendar.isDateInWeekend(self.day) ? Color.primary : Color.secondary))
+                    .accessibilityLabel(self.accessibilityDateFormatter.string(from: day))
             }
             
             Group {
@@ -54,10 +56,16 @@ struct CalendarViewDay<DotsView: View & Equatable>: View, Equatable {
         }
     }
     
-    func dateFormatter() -> DateFormatter {
+    private let dayFormatter: DateFormatter = {
         let formatter = DateFormatter()
         formatter.locale = .current
         formatter.dateFormat = "d"
         return formatter
-    }
+    }()
+    
+    private let accessibilityDateFormatter: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.dateFormat = DateFormatter.dateFormat(fromTemplate: "d MMMM", options: 0, locale: .current)
+        return formatter
+    }()
 }

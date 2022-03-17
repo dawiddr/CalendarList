@@ -45,6 +45,7 @@ struct CalendarMonthView<DotsView: View & Equatable>: View {
                         .anchorPreference(key: BoundsPreferences<Date>.self, value: .bounds) {
                             [day: $0]
                         }.opacity(isShowingSelectedDayDetails && !selectedDays.contains(day) ? 0.4 : 1)
+                        .accessibilityAddTraits(.isButton)
                         .onTapGesture {
                             guard let dayFrame = dayFrames[day] else {
                                 return
@@ -79,6 +80,7 @@ struct CalendarMonthView<DotsView: View & Equatable>: View {
                 }
             }
         }.contentShape(Rectangle())
+        .accessibilityHidden(!isVisible)
         .onPreferenceChange(BoundsPreferences<Date>.self) { newValue in
             if isVisible {
                 dayFrames = newValue
