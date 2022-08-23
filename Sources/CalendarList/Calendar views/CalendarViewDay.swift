@@ -22,7 +22,7 @@ struct CalendarViewDay<DotsView: View & Equatable>: View, Equatable {
         VStack(spacing: 0) {
             ZStack {
                 let color = dateColor()
-                Text("00")
+                Text(verbatim: "00")
                     .font(.body)
                     .padding(6)
                     .hidden()
