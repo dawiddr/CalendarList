@@ -8,6 +8,7 @@
 
 import SwiftUI
 import SwiftUIPager
+import Strings
 
 /// SwiftUI view to display paginated calendar months. When a given date is selected, all events for such date are represented below
 /// according to the view-generation initializer block.
@@ -149,7 +150,7 @@ public struct CalendarList<DotsView: View & Equatable, DetailsView: View & Equat
             Image(systemName: "chevron.backward")
                 .font(navigationButtonFont)
                 .padding([.leading, .trailing], 8)
-                .accessibilityLabel("Previous month")
+                .accessibilityLabel(Strings.Schedule.previousMonthButton)
         }
     }
     
@@ -164,8 +165,8 @@ public struct CalendarList<DotsView: View & Equatable, DetailsView: View & Equat
             Image(systemName: "smallcircle.filled.circle")
                 .font(navigationButtonFont)
                 .padding([.leading, .trailing], 8)
-        }.accessibilityLabel("Today")
-        .accessibilityHint("Go to current day")
+        }.accessibilityLabel(Strings.Schedule.todayButton)
+        .accessibilityHint(Strings.Schedule.todayButtonHint)
     }
     
     private var nextMonthButton: some View {
@@ -179,7 +180,7 @@ public struct CalendarList<DotsView: View & Equatable, DetailsView: View & Equat
             Image(systemName: "chevron.forward")
                 .font(navigationButtonFont)
                 .padding([.leading, .trailing], 8)
-                .accessibilityLabel("Next month")
+                .accessibilityLabel(Strings.Schedule.nextMonthButton)
         }
     }
     

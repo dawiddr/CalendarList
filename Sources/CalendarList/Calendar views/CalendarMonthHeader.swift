@@ -15,7 +15,7 @@ struct CalendarMonthHeader:View {
     var body: some View {
         HStack(spacing: 2) {
             ForEach(CalendarUtils.getLocalizedShortWeekdaySymbols(for: self.calendar), id:\.order) { weekdaySymbol in
-                Text("\(weekdaySymbol.symbol)")
+                Text(weekdaySymbol.symbol)
                     .font(.caption)
                     .foregroundColor(.secondary)
                     .frame(maxWidth: .infinity, alignment: .center)

@@ -29,7 +29,7 @@ struct CalendarViewDay<DotsView: View & Equatable>: View, Equatable {
                     .background(Circle().foregroundColor(color))
                     .accessibilityHidden(true)
                 
-                Text("\(self.dayFormatter.string(from: day))")
+                Text(self.dayFormatter.string(from: day))
                     .font(.body.weight(color == selectedDateColor ? .medium : .regular))
                     .foregroundColor(self.selected ? Color.white : ( !self.calendar.isDateInWeekend(self.day) ? Color.primary : Color.secondary))
                     .accessibilityLabel(self.accessibilityDateFormatter.string(from: day))
