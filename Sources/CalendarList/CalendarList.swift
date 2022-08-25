@@ -8,7 +8,6 @@
 
 import SwiftUI
 import SwiftUIPager
-import Strings
 
 /// SwiftUI view to display paginated calendar months. When a given date is selected, all events for such date are represented below
 /// according to the view-generation initializer block.
@@ -150,7 +149,8 @@ public struct CalendarList<DotsView: View & Equatable, DetailsView: View & Equat
             Image(systemName: "chevron.backward")
                 .font(navigationButtonFont)
                 .padding([.leading, .trailing], 8)
-                .accessibilityLabel(Strings.Schedule.previousMonthButton)
+                .accessibilityLabel(Text("schedule.previous_month_button",
+                                         comment: "Button - shows work schedule for the previous month"))
         }
     }
     
@@ -165,8 +165,10 @@ public struct CalendarList<DotsView: View & Equatable, DetailsView: View & Equat
             Image(systemName: "smallcircle.filled.circle")
                 .font(navigationButtonFont)
                 .padding([.leading, .trailing], 8)
-        }.accessibilityLabel(Strings.Schedule.todayButton)
-        .accessibilityHint(Strings.Schedule.todayButtonHint)
+        }.accessibilityLabel(Text("schedule.today_button",
+                                  comment: "Button - navigates work schedule to the current day"))
+        .accessibilityHint(Text("schedule.today_button_hint",
+                                comment: "Hint - used for a button that navigates work schedule to the current day"))
     }
     
     private var nextMonthButton: some View {
@@ -180,7 +182,8 @@ public struct CalendarList<DotsView: View & Equatable, DetailsView: View & Equat
             Image(systemName: "chevron.forward")
                 .font(navigationButtonFont)
                 .padding([.leading, .trailing], 8)
-                .accessibilityLabel(Strings.Schedule.nextMonthButton)
+                .accessibilityLabel(Text("schedule.next_month_button",
+                                         comment: "Button - shows work schedule for the next month"))
         }
     }
     
