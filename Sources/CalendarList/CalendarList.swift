@@ -149,8 +149,7 @@ public struct CalendarList<DotsView: View & Equatable, DetailsView: View & Equat
             Image(systemName: "chevron.backward")
                 .font(navigationButtonFont)
                 .padding([.leading, .trailing], 8)
-                .accessibilityLabel(Text("schedule.previous_month_button",
-                                         comment: "Button - shows work schedule for the previous month"))
+                .accessibilityLabel(Text("schedule.previous_month_button"))
         }
     }
     
@@ -165,10 +164,8 @@ public struct CalendarList<DotsView: View & Equatable, DetailsView: View & Equat
             Image(systemName: "smallcircle.filled.circle")
                 .font(navigationButtonFont)
                 .padding([.leading, .trailing], 8)
-        }.accessibilityLabel(Text("schedule.today_button",
-                                  comment: "Button - navigates work schedule to the current day"))
-        .accessibilityHint(Text("schedule.today_button_hint",
-                                comment: "Hint - used for a button that navigates work schedule to the current day"))
+        }.accessibilityLabel(Text("schedule.today_button"))
+        .accessibilityHint(Text("schedule.today_button_hint"))
     }
     
     private var nextMonthButton: some View {
@@ -182,8 +179,7 @@ public struct CalendarList<DotsView: View & Equatable, DetailsView: View & Equat
             Image(systemName: "chevron.forward")
                 .font(navigationButtonFont)
                 .padding([.leading, .trailing], 8)
-                .accessibilityLabel(Text("schedule.next_month_button",
-                                         comment: "Button - shows work schedule for the next month"))
+                .accessibilityLabel(Text("schedule.next_month_button"))
         }
     }
     
