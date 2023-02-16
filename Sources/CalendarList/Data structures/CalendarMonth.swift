@@ -39,8 +39,7 @@ public struct CalendarMonth: Equatable {
     }
     
     public func monthTitle() -> String {
-        let title = titleFormatter.string(from: actualDate)
-        return title.prefix(1).uppercased() + title.dropFirst()
+        titleFormatter.string(from: actualDate)
     }
     
     public static func getSurroundingMonths(forDate date:Date, andCalendar calendar:Calendar) -> [CalendarMonth] {
@@ -55,6 +54,7 @@ public struct CalendarMonth: Equatable {
     private let titleFormatter: DateFormatter = {
         let formatter = DateFormatter()
         formatter.dateFormat = DateFormatter.dateFormat(fromTemplate: "MMMM yyyy", options: 0, locale: Locale.current)
+        formatter.formattingContext = .standalone
         return formatter
     }()
 }
