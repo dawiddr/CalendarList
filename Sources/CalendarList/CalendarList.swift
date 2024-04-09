@@ -67,7 +67,6 @@ public struct CalendarList<DotsView: View & Equatable, DetailsView: View & Equat
             VStack {
                 CalendarMonthHeader(calendar: self.months[1].calendar)
                     .padding([.leading, .trailing])
-            
                 Pager(page: .withIndex(currentPage), data: months.indices, id: \.self) { index in
                     let month = months[index]
                     CalendarMonthView(month: month,
@@ -100,7 +99,7 @@ public struct CalendarList<DotsView: View & Equatable, DetailsView: View & Equat
         }
     }
     
-    private func detailsView() -> CalendarOverlayView? {
+    private func detailsView() -> CalendarOverlayView {
         if isShowingSelectedDayDetails, let selectedDay = selectedDays.first, let dayFrame = selectedDayFrames.first {
             let detailsWidth = selectedDayDetailsFrame.size.width
             let detailsHeight = selectedDayDetailsFrame.size.height
@@ -119,7 +118,7 @@ public struct CalendarList<DotsView: View & Equatable, DetailsView: View & Equat
                     .opacity(selectedDayDetailsFrame == .zero ? 0 : 1) // The frame is initially zero, which causes the position to be incorrect.
             }))
         } else {
-            return nil
+            return CalendarOverlayView(view: AnyView(EmptyView().hidden()))
         }
     }
     
