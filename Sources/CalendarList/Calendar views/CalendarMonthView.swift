@@ -9,7 +9,7 @@
 import SwiftUI
 
 @available(iOS 13.0, OSX 10.15, tvOS 13.0, watchOS 6.0, *)
-struct CalendarMonthView<DotsView: View & Equatable>: View {
+struct CalendarMonthView<DotsView: View & Equatable & Sendable>: View {
     let month:CalendarMonth
     let calendar:Calendar
     

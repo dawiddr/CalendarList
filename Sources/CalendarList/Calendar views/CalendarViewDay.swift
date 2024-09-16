@@ -8,8 +8,8 @@
 
 import SwiftUI
 
-@available(iOS 13.0, OSX 10.15, tvOS 13.0, watchOS 6.0, *)
-struct CalendarViewDay<DotsView: View & Equatable>: View, Equatable {
+@MainActor
+struct CalendarViewDay<DotsView: View & Equatable & Sendable>: View, Equatable {
     let calendar:Calendar
     let day:Date
     let selected:Bool

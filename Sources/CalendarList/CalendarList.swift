@@ -20,7 +20,7 @@ import SwiftUIPager
 ///   - todayDateColor: color used to highlight the current day. Defaults to the accent color with 0.3 opacity.
 ///   - viewForEvent: `@ViewBuilder` block to generate a view per every event on the selected date. All the generated views for a given day will be presented in a `List`.
 @available(iOS 13.0, OSX 10.15, tvOS 13.0, watchOS 6.0, *)
-public struct CalendarList<DotsView: View & Equatable, DetailsView: View & Equatable, FooterView: View>: View {
+public struct CalendarList<DotsView: View & Equatable & Sendable, DetailsView: View & Equatable, FooterView: View>: View {
     /// Create a new paginated calendar SwiftUI view.
     /// - Parameters:
     ///   - initialDate: the initial month to be displayed will be extracted from this date. Defaults to the current day.
@@ -204,8 +204,9 @@ public struct CalendarList<DotsView: View & Equatable, DetailsView: View & Equat
     private var todayDateColor:Color
 }
 
+@MainActor
 public struct CalendarOverlayView: Equatable {
-    public static func == (lhs: CalendarOverlayView, rhs: CalendarOverlayView) -> Bool {
+    nonisolated public static func == (lhs: CalendarOverlayView, rhs: CalendarOverlayView) -> Bool {
         return lhs.id == rhs.id
     }
     
@@ -215,7 +216,7 @@ public struct CalendarOverlayView: Equatable {
 }
 
 public struct CalendarOverlayPreference: PreferenceKey {
-    public static var defaultValue: CalendarOverlayView?
+    public static let defaultValue: CalendarOverlayView? = nil
     
     public static func reduce(value: inout CalendarOverlayView?, nextValue: () -> CalendarOverlayView?) {
         value = nextValue()
@@ -223,7 +224,7 @@ public struct CalendarOverlayPreference: PreferenceKey {
 }
 
 private struct BoundsPreference: PreferenceKey {
-    static var defaultValue: CGRect = .zero
+    static let defaultValue: CGRect = .zero
 
     static func reduce(value: inout CGRect, nextValue: () -> CGRect) {
         value = nextValue()
