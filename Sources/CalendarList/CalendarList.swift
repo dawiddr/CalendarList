@@ -32,6 +32,7 @@ public struct CalendarList<DotsView: View & Equatable & Sendable, DetailsView: V
                 selectedDays: Binding<[Date]>,
                 isSelectingMultipleDays: Binding<Bool>,
                 isShowingSelectedDayDetails: Binding<Bool>,
+                overlayHolder: CalendarOverlayHolder,
                 selectedDateColor:Color = Color.accentColor,
                 todayDateColor:Color = Color.accentColor.opacity(0.3),
                 @ViewBuilder footerView: @escaping () -> FooterView,
@@ -42,6 +43,7 @@ public struct CalendarList<DotsView: View & Equatable & Sendable, DetailsView: V
         self._selectedDays = selectedDays
         self._isSelectingMultipleDays = isSelectingMultipleDays
         self._isShowingSelectedDayDetails = isShowingSelectedDayDetails
+        self.overlayHolder = overlayHolder
         self.selectedDateColor = selectedDateColor
         self.todayDateColor = todayDateColor
         self.footerView = footerView
@@ -89,7 +91,15 @@ public struct CalendarList<DotsView: View & Equatable & Sendable, DetailsView: V
                     }
                 }.frame(height: CGFloat(months[1].weeks.count) * self.calendarDayHeight)
                 .offset(y: -8)
-                .preference(key: CalendarOverlayPreference.self, value: detailsView())
+                .onChange(of: isShowingSelectedDayDetails) { _ in
+                    overlayHolder.view = detailsView()
+                }.onChange(of: selectedDays) { _ in
+                    overlayHolder.view = detailsView()
+                }.onChange(of: selectedDayFrames) { _ in
+                    overlayHolder.view = detailsView()
+                }.onChange(of: selectedDayDetailsFrame) { _ in
+                    overlayHolder.view = detailsView()
+                }
             }.padding(.top)
             .background(Color(UIColor.secondarySystemGroupedBackground)
                             .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous)))
@@ -99,12 +109,12 @@ public struct CalendarList<DotsView: View & Equatable & Sendable, DetailsView: V
         }
     }
     
-    private func detailsView() -> CalendarOverlayView {
+    private func detailsView() -> AnyView {
         if isShowingSelectedDayDetails, let selectedDay = selectedDays.first, let dayFrame = selectedDayFrames.first {
             let detailsWidth = selectedDayDetailsFrame.size.width
             let detailsHeight = selectedDayDetailsFrame.size.height
 
-            return CalendarOverlayView(view: AnyView(GeometryReader { geometry in
+            return AnyView(GeometryReader { geometry in
                 let dayFrame = geometry[dayFrame]
                 self.detailsViewBuilder(selectedDay)
                     .equatable()
@@ -116,9 +126,9 @@ public struct CalendarList<DotsView: View & Equatable & Sendable, DetailsView: V
                     }.position(x: min(max(detailsWidth / 2 + 8, dayFrame.minX + dayFrame.width / 2), geometry.size.width - detailsWidth / 2 - 8),
                                y: dayFrame.minY - detailsHeight / 2 - 6)
                     .opacity(selectedDayDetailsFrame == .zero ? 0 : 1) // The frame is initially zero, which causes the position to be incorrect.
-            }))
+            })
         } else {
-            return CalendarOverlayView(view: AnyView(EmptyView().hidden()))
+            return AnyView(EmptyView().hidden())
         }
     }
     
@@ -202,25 +212,7 @@ public struct CalendarList<DotsView: View & Equatable & Sendable, DetailsView: V
     private var detailsViewBuilder: (Date) -> DetailsView?
     private var selectedDateColor:Color
     private var todayDateColor:Color
-}
-
-@MainActor
-public struct CalendarOverlayView: Equatable {
-    nonisolated public static func == (lhs: CalendarOverlayView, rhs: CalendarOverlayView) -> Bool {
-        return lhs.id == rhs.id
-    }
-    
-    public let view: AnyView
-    
-    private let id = UUID().uuidString
-}
-
-public struct CalendarOverlayPreference: PreferenceKey {
-    public static let defaultValue: CalendarOverlayView? = nil
-    
-    public static func reduce(value: inout CalendarOverlayView?, nextValue: () -> CalendarOverlayView?) {
-        value = nextValue()
-    }
+    private var overlayHolder: CalendarOverlayHolder
 }
 
 private struct BoundsPreference: PreferenceKey {
@@ -229,4 +221,11 @@ private struct BoundsPreference: PreferenceKey {
     static func reduce(value: inout CGRect, nextValue: () -> CGRect) {
         value = nextValue()
     }
+}
+
+public class CalendarOverlayHolder: ObservableObject {
+    public init() {}
+
+    @Published
+    public var view: AnyView = AnyView(EmptyView())
 }
