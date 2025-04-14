@@ -91,13 +91,13 @@ public struct CalendarList<DotsView: View & Equatable & Sendable, DetailsView: V
                     }
                 }.frame(height: CGFloat(months[1].weeks.count) * self.calendarDayHeight)
                 .offset(y: -8)
-                .onChange(of: isShowingSelectedDayDetails) { _ in
+                .onChange(of: isShowingSelectedDayDetails) {
                     overlayHolder.view = detailsView()
-                }.onChange(of: selectedDays) { _ in
+                }.onChange(of: selectedDays) {
                     overlayHolder.view = detailsView()
-                }.onChange(of: selectedDayFrames) { _ in
+                }.onChange(of: selectedDayFrames) {
                     overlayHolder.view = detailsView()
-                }.onChange(of: selectedDayDetailsFrame) { _ in
+                }.onChange(of: selectedDayDetailsFrame) {
                     overlayHolder.view = detailsView()
                 }
             }.padding(.top)
